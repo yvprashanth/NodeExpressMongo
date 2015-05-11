@@ -3,7 +3,7 @@ var bodyParser = require('body-parser');
 var app = express();
 var fixtures = require('./fixtures');
 var methodOverride = require('method-override');
-
+var _ = require('lodash');
 app.use(bodyParser.urlencoded({'extended':'true'})); // parse application/x-www-form-urlencoded
 app.use(bodyParser.json()); // parse application/json
 app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
@@ -47,7 +47,44 @@ app.post('/login', function(req,res){
 //  res.sendStatus(200)
 //})
 
-// My Solution
+// Sort the tweets by created time
+		var sortedTweets = function(data){
+			return data.tweets.sort(function(t1, t2){
+				if(t1.id > t2.id){
+					return -1;
+				}else if(t1.id === t2.id){
+					return 0;
+				} else {
+					return 1;
+				}
+			});
+		}
+
+// My Solution - Step 7
+app.post('/api/tweets', function(req, res){
+	var tweet = req.body.tweet;
+	if(_.find(fixtures.tweets, 'userId', tweet.userId)){
+		return res.sendStatus(409);
+	};	
+	tweet.id = parseInt(sortedTweets(fixtures)[0].id) + 1;
+	console.log(tweet.id);
+	tweet.id = tweet.id.toString();
+	tweet.created = Math.round((new Date()).getTime() / 1000);
+	
+//	console.log(idExists);
+//	if(idExists)
+//			tweet.id = (parseInt(idExists) + 1);
+//	console.log(tweet.id);
+//	var ifFound = _.findIndex(sortedTweets, { 'user': 'fred', 'active': false });
+	
+	fixtures.tweets.push(tweet);
+	
+	var result = {tweet : tweet};
+	res.send(result);
+});
+
+
+// My Solution - Step 6
 app.post('/api/users', function(request, response){
 	if (!request.body)
 			return response.sendStatus(400);
