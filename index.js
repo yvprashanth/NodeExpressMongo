@@ -158,6 +158,23 @@ app.get('/api/tweets', function(req, res){
 });
 
 
+// Task 8
+app.get('/api/tweets/:tweetId', function(req, res){
+	var tweetId = req.params.tweetId;
+	var tweet = null;
+	for(var i = 0; i < fixtures.users.length; i++){
+		if(fixtures.tweets[i].id === tweetId)
+			tweet = fixtures.tweets[i];
+	}
+	
+	if(!tweet){
+		return res.sendStatus(404);
+	}
+	return res.send({
+		tweet : tweet
+	});
+});
+
 // Task 5
 
 app.get('/api/users/:userId', function(req, res){
