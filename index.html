@@ -1,0 +1,27 @@
+<html>
+	<head>
+		<title>
+			Simple Login
+		</title>
+		<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+		<script>
+			$(document).ready(function(){
+					$('#simple_click').click(function(){
+						var user = $('#user').val();
+						var pass = $('#password').val();
+						$.post( "http://127.0.0.1:3000/login", {user: user, password: pass} )
+						  .done(function( data ) {
+						    alert( "Data Loaded: " + data );
+						  });
+					});
+			});
+		</script>
+	</head>
+	<body>
+		<h1>Hello World!</h1>
+		<input type="TEXT" id='user' size="40"></input>
+		<input type="password" id='password' size="40"></input>
+		<input type="button" id='simple_click' size="40" value="Submit"></input>
+	</body>
+
+</html>

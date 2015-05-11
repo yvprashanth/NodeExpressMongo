@@ -1,10 +1,80 @@
 var express = require('express');
-var fixtures = require('./fixtures');
+var bodyParser = require('body-parser');
 var app = express();
+var fixtures = require('./fixtures');
+var methodOverride = require('method-override');
+
+app.use(bodyParser.urlencoded({'extended':'true'})); // parse application/x-www-form-urlencoded
+app.use(bodyParser.json()); // parse application/json
+app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
+app.use(methodOverride('X-HTTP-Method-Override')); // override with the X-HTTP-Method-Override header in the request
+app.use(bodyParser.urlencoded({extended : false}));
+
+app.get('/', function(req, res){
+	res.sendFile("index.html", {"root": __dirname});
+});
+
+//app.use(function (req, res, next) {
+//  console.log(req.body); // populated!
+//  next();
+//});
+
+// create application/json parser
+var jsonParser = bodyParser.json();
+
+app.post('/login', function(req,res){
+	var userName = req.body.user;
+	console.log(req.body.user);
+	res.send(userName);
+});
+
+// Given Solution
+//var _ = require('lodash')
+//  , bodyParser = require('body-parser')
+//
+//app.use(bodyParser.json())
+//
+//app.post('/api/users', function(req, res) {
+//  var user = req.body.user
+//
+//  if (_.find(fixtures.users, 'id', user.id)) {
+//    return res.sendStatus(409)
+//  }
+//
+//  user.followingIds = []
+//  fixtures.users.push(user)
+//
+//  res.sendStatus(200)
+//})
+
+// My Solution
+app.post('/api/users', function(request, response){
+	if (!request.body)
+			return response.sendStatus(400);
+		var tempFixtures = fixtures;
+		if(userIdExists(request.body.user.id, tempFixtures)){
+			response.sendStatus(409);
+		}
+		else{
+			if(!request.body.user.followingIds){
+				var fIds = [];
+				request.body.user.followingIds = fIds;
+			}
+			 tempFixtures.users.push(request.body.user);
+			 fixtures = tempFixtures;
+			 response.send(fixtures.users);
+		}
+});
+
+function userIdExists(id, tempFixtures) {
+	var userIdExists = tempFixtures.users.filter(function( obj ) {
+  				return obj.id == id;
+		});
+	return userIdExists.length;
+}
 
 app.get('/api/tweets', function(req, res){
-	var userId = req.query.userId;
-	
+	var userId = req.query.userId;	
 	if(typeof userId === "undefined" || userId === null || userId === ""){
 		return res.status(400).send("Bad Request");
 	}
@@ -25,17 +95,17 @@ app.get('/api/tweets', function(req, res){
 		tweets.push(fixtures.tweets[i]);	
 	}
 	
-	// Sort the tweets by created time
-	var sortedTweets = tweets.sort(function(t1, t2){
-		if(t1.created > t2.created){
-			return -1;
-		}else if(t1.created === t2.created){
-			return 0;
-		} else {
-			return 1;
-		}
-	});
-	
+		// Sort the tweets by created time
+		var sortedTweets = tweets.sort(function(t1, t2){
+			if(t1.created > t2.created){
+				return -1;
+			}else if(t1.created === t2.created){
+				return 0;
+			} else {
+				return 1;
+			}
+		});
+		
 		function userIdMatch(value) {
 		  return value.userId == userId;
 		}
@@ -69,5 +139,7 @@ app.get('/api/users/:userId', function(req, res){
 	});
 });
 
-var server = app.listen(3000, '127.0.0.1');
+var server = app.listen(3000, '127.0.0.1', function(req, res){
+	console.log('Started on port 3000 for 127');
+});
 module.exports = server;
