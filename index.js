@@ -24,7 +24,6 @@ var jsonParser = bodyParser.json();
 
 app.post('/login', function(req,res){
 	var userName = req.body.user;
-	console.log(req.body.user);
 	res.send(userName);
 });
 
@@ -58,7 +57,7 @@ app.post('/login', function(req,res){
 					return 1;
 				}
 			});
-		}
+		};
 
 // My Solution - Step 7
 app.post('/api/tweets', function(req, res){
@@ -67,18 +66,10 @@ app.post('/api/tweets', function(req, res){
 		return res.sendStatus(409);
 	};	
 	tweet.id = parseInt(sortedTweets(fixtures)[0].id) + 1;
-	console.log(tweet.id);
 	tweet.id = tweet.id.toString();
 	tweet.created = Math.round((new Date()).getTime() / 1000);
 	
-//	console.log(idExists);
-//	if(idExists)
-//			tweet.id = (parseInt(idExists) + 1);
-//	console.log(tweet.id);
-//	var ifFound = _.findIndex(sortedTweets, { 'user': 'fred', 'active': false });
-	
 	fixtures.tweets.push(tweet);
-	
 	var result = {tweet : tweet};
 	res.send(result);
 });
@@ -157,12 +148,34 @@ app.get('/api/tweets', function(req, res){
 	});
 });
 
+		
+// Task 9 
+app.delete('/api/tweets/:id', function(req, res) {
+	var tweetid = _.find(fixtures.tweets, 'id', req.params.id);
+	if(tweetid){
+		fixtures.tweets = _.without(fixtures.tweets, _.findWhere(fixtures.tweets, tweetid));
+		return res.sendStatus(200);
+	}
+	else		
+		return res.sendStatus(404);
+});
+
+// Given Solution
+//app.delete('/api/tweets/:tweetId', function(req, res) {
+//  var removedTweets = _.remove(fixtures.tweets, 'id', req.params.tweetId)
+//
+//  if (removedTweets.length == 0) {
+//    return res.sendStatus(404)
+//  }
+//
+//  res.sendStatus(200)
+//})
 
 // Task 8
 app.get('/api/tweets/:tweetId', function(req, res){
 	var tweetId = req.params.tweetId;
 	var tweet = null;
-	for(var i = 0; i < fixtures.users.length; i++){
+	for(var i = 0; i < fixtures.tweets.length; i++){
 		if(fixtures.tweets[i].id === tweetId)
 			tweet = fixtures.tweets[i];
 	}
