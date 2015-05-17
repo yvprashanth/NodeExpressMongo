@@ -4,6 +4,8 @@ var app = express();
 var fixtures = require('./fixtures');
 var methodOverride = require('method-override');
 var _ = require('lodash');
+
+var passport  = require('./auth');
 app.use(bodyParser.urlencoded({'extended':'true'})); // parse application/x-www-form-urlencoded
 app.use(bodyParser.json()); // parse application/json
 app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
@@ -201,6 +203,7 @@ app.get('/api/users/:userId', function(req, res){
 	if(!user){
 		return res.sendStatus(404);
 	}
+    
 	return res.send({
 		user : user
 	});
