@@ -218,23 +218,23 @@ app.get('/api/users/:userId', function(req, res){
 	});
 });
 
-app.post('/api/auth/login', function(req, res, next){
-	console.log(req.body.username);
-	if(_.find(fixtures.users, 'id', req.body.username)){
-		var user = _.find(fixtures.users, 'id', req.body.username);
-		return res.send({user : user});
-	};	
-	return res.send({
-		tweet : 2
-	});
-//	passport.authenticate('local', function(err, user, info){
-//		if(err) {return next(err); }
-//		if(!user) {return res.redirect('/login'); }
-//		req.logIn(user, function(err){
-//			if(err) {return next(err); }
-//			return res.redirect('/users/', req.username);
-//		});
-//	})(req, res, next);
+app.post('/api/auth/login', function(req, res, next){	
+	passport.authenticate('local', function(err, user, info) {
+		if(err) {
+            return res.sendStatus(500);
+        }
+        if(info) {
+            return res.sendStatus(403);
+        }
+
+	    req.login(user, function(err) {			
+	      	if (err) {
+                return res.sendStatus(500);
+            }
+			if (!user) { return res.redirect('/login'); }
+			 return res.send({ user: user });
+	    });
+	  })(req, res, next);
 });
 
 var server = app.listen(3000, '127.0.0.1', function(req, res){
