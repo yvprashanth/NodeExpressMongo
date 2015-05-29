@@ -73,8 +73,9 @@ app.post('/login', function(req,res){
 		};
 
 // My Solution - Step 7
-app.post('/api/tweets', function(req, res){
+app.post('/api/tweets', ensureAuthentication(), function(req, res){
 	var tweet = req.body.tweet;
+	console.log(req.id);
 	if(_.find(fixtures.tweets, 'userId', tweet.userId)){
 		return res.sendStatus(409);
 	};	
@@ -86,7 +87,6 @@ app.post('/api/tweets', function(req, res){
 	var result = {tweet : tweet};
 	res.send(result);
 });
-
 
 // My Solution - Step 6
 app.post('/api/users', function(request, response){

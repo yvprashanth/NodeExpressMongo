@@ -6,8 +6,8 @@ var app = express();
 app.use(passport.initialize());
 app.use(passport.session());
 var LocalStrategy = require('passport-local').Strategy;
-passport.serializeUser(function(user, done) {
 
+passport.serializeUser(function(user, done) {
   done(null, user.id);
 });
 
@@ -19,13 +19,8 @@ passport.deserializeUser(function(id, done) {
     done(null, user);
 });
 
-function ensureAuthentication(req, res, next) {
-  // Your middleware implementation
-}
-
 function verify(username, password, done) {
 //    var User = conn.model('User');
-//
 //    User.findOne({ id: username}, function(err, user) {
 //        if (err) {
 //            return done(err, null);
@@ -50,7 +45,6 @@ function verify(username, password, done) {
     }
     done(null, user);
 }
-
 
 passport.use(new LocalStrategy(verify));
 
