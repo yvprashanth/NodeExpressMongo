@@ -5,6 +5,6 @@ module.exports = function() {
         if (!req.isAuthenticated()) {
             return res.sendStatus(403);
         }
-        next(req);
+        next();
     };
 };
