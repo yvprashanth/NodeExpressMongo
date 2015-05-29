@@ -19,6 +19,10 @@ passport.deserializeUser(function(id, done) {
     done(null, user);
 });
 
+function ensureAuthentication(req, res, next) {
+  // Your middleware implementation
+}
+
 function verify(username, password, done) {
 //    var User = conn.model('User');
 //

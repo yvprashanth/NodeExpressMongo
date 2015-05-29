@@ -6,6 +6,8 @@ var methodOverride = require('method-override');
 var _ = require('lodash');
 var session  = require('express-session')
 var passport  = require('./auth');
+var ensureAuthentication = require('./ensureAuthentication');
+
 app.use(bodyParser.urlencoded({'extended':'true'})); // parse application/x-www-form-urlencoded
 app.use(bodyParser.json()); // parse application/json
 app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
@@ -161,8 +163,12 @@ app.get('/api/tweets', function(req, res){
 
 		
 // Task 9 
-app.delete('/api/tweets/:id', function(req, res) {
+app.delete('/api/tweets/:id',  ensureAuthentication(), function(req, res) {
 	var tweetid = _.find(fixtures.tweets, 'id', req.params.id);
+	console.log(tweetid);
+	if(req.user.id !== tweetid.userId){
+		return res.sendStatus(404);
+	}
 	if(tweetid){
 		fixtures.tweets = _.without(fixtures.tweets, _.findWhere(fixtures.tweets, tweetid));
 		return res.sendStatus(200);
