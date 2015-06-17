@@ -2,6 +2,8 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
 var fixtures = require('./fixtures');
+var childprocess = require('child_process');
+var shortid = require('shortid');
 var methodOverride = require('method-override');
 var _ = require('lodash');
 var session  = require('express-session')
@@ -73,20 +75,66 @@ app.post('/login', function(req,res){
 		};
 
 // My Solution - Step 7
-app.post('/api/tweets', ensureAuthentication(), function(req, res){
-	var tweet = req.body.tweet;
-	console.log(req.id);
-	if(_.find(fixtures.tweets, 'userId', tweet.userId)){
-		return res.sendStatus(409);
-	};	
-	tweet.id = parseInt(sortedTweets(fixtures)[0].id) + 1;
-	tweet.id = tweet.id.toString();
-	tweet.created = Math.round((new Date()).getTime() / 1000);
-	
-	fixtures.tweets.push(tweet);
-	var result = {tweet : tweet};
-	res.send(result);
+//app.post('/api/tweets', ensureAuthentication(), function(req, res){
+//    
+//	var tweet = req.body.tweet;
+//    
+//      if (req.user.id !== req.params.userId) {
+//        return res.sendStatus(403)
+//      }
+//    
+//	
+//	var tweetData = req.body.tweet;
+////	 tweetData.userId = req.user.id;
+//	
+////	console.log(tweetData); 
+//	if(_.find(fixtures.tweets, 'userId', tweet.userId)){
+//		return res.sendStatus(409);
+//	};	
+//	tweet.id = parseInt(sortedTweets(fixtures)[0].id) + 1;
+//	tweet.id = tweet.id.toString();
+//	tweet.created = Math.round((new Date()).getTime() / 1000);
+//	
+//	fixtures.tweets.push(tweet);
+//	var result = {tweet : tweet};
+//	res.send(result);
+//});
+//
+
+app.post('/api/tweets', ensureAuthentication(), function(req, res) {
+    var tweet = req.body.tweet;
+    tweet.userId = req.user.id;
+    tweet.id = Math.random();
+    tweet.created = Date.now() / 1000 | 0;
+
+    fixtures.tweets.push(tweet);
+
+    //console.log(fixtures.tweets);
+    res.send({ tweet: tweet })
 });
+
+
+
+app.post('/api/auth/login', function(req, res) {
+    passport.authenticate('local', function(err, user, info) {
+        if (err) {
+            return res.sendStatus(500)
+        }
+        if (!user) {
+            return res.sendStatus(403)
+        }
+        req.login(user, function(err) {
+            if (err) {
+                return res.sendStatus(500)
+            }
+            return res.send({ user: user })
+        })
+    })(req, res)
+});
+
+
+
+
 
 // My Solution - Step 6
 app.post('/api/users', function(request, response){
@@ -165,9 +213,8 @@ app.get('/api/tweets', function(req, res){
 // Task 9 
 app.delete('/api/tweets/:id',  ensureAuthentication(), function(req, res) {
 	var tweetid = _.find(fixtures.tweets, 'id', req.params.id);
-	console.log(tweetid);
 	if(req.user.id !== tweetid.userId){
-		return res.sendStatus(404);
+		return res.sendStatus(403);
 	}
 	if(tweetid){
 		fixtures.tweets = _.without(fixtures.tweets, _.findWhere(fixtures.tweets, tweetid));
@@ -228,7 +275,7 @@ app.post('/api/auth/login', function(req, res, next){
 	passport.authenticate('local', function(err, user, info) {
 		if(err) {
             return res.sendStatus(500);
-        }
+        } 
         if(info) {
             return res.sendStatus(403);
         }

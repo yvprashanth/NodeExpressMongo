@@ -25,7 +25,6 @@ function verify(username, password, done) {
 //        if (err) {
 //            return done(err, null);
 //        }
-//
 //        if (!user) {
 //            return done(null, false, { message: 'Incorrect username.' });
 //        }
